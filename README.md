@@ -19,12 +19,8 @@ Saves Video's to a specific (or specified?) directory
 * This could then be mounted to a Plex sub-library folder
 
 ## TODO
-* Write CRUD logic for each endpoint w/ DB integration
-	* Write for JSONAPI specification
-* Add queue of some type for thread communication
-* Add thread for Queue Processing
-	* If there is an item or items in the Queue, grab first item in the Queue
-	* Change Status to "Processing" and call youtube-dl on the url provided
+* Change download file template name to title.mp4
+
 * Add restart - startup procedures
 	* Initial database connection - Create table if not exist by default
 	* Queue thread should get all DB rows with "pending" and "processing" status and fill the Queue then begin processing
@@ -92,5 +88,5 @@ pip3 install flask Flask-API youtube-dl psycopg2
 
 ## REST Example
 ```
-curl -X POST localhost:5000/Videos -H 'Content-type:application/json' -d '{"type":"video", "attributes":{"url":"youtube.com/thisnewvid", "directory":"/"}}'
+curl -X POST localhost:5000/Videos -H 'Content-type:application/json' -d '{"type":"video", "attributes":{"url":"https://www.youtube.com/watch?v=y2DhodwenUE", "directory":"/"}}'
 ```

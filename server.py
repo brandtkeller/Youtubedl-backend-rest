@@ -3,8 +3,12 @@ from flask_api import FlaskAPI, status, exceptions
 import youtube_dl
 from database import create_table, get_all_rows, get_row_by_id, create_row, update_row, delete_row
 from video import Video
+from queue import Queue 
+from threading import Thread 
 
 app = FlaskAPI(__name__)
+processing = False
+video_processing = None
 
 
 @app.route("/Videos", methods=['GET', 'POST'])
@@ -25,6 +29,7 @@ def videos_list():
         newVid = Video(rowId, vid_url, "", "Pending", "Placed in Queue", vid_dir)
 
         # Pass this video object to the Queue
+        q.put(newVid)
 
         return {'data':newVid.toJson()},status.HTTP_201_CREATED
 
@@ -51,7 +56,54 @@ def videos_detail(key):
         
     return {'data':newVid.toJson()}
 
+def processor(in_q):
+    global processing
+    while True:
+        print("Processing = " + str(processing))
+        if processing == False:
+            vid = in_q.get()
+            download(vid)
+        else:
+            continue
+
+def my_hook(d):
+    if d['status'] == 'finished':
+        print('Done downloading, now converting ...')
+        global video_processing
+        global processing
+
+        print('video_processing id = ' + str(video_processing.id))
+        video_processing.status = 'downloaded'
+        video_processing.status_message = 'Download Compeleted'
+        video_processing.save()
+        # Need to find a way here to get the current video and change after finished
+        processing = False
+
+def download(video):
+    global video_processing
+    global processing
+    processing = True
+    ydl_opts = {
+    'noplaylist' : True,
+    'outtmpl': '%(title)s.%(ext)s',
+    'progress_hooks': [my_hook],
+    }
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        info_dict = ydl.extract_info(video.url, download=False)
+        video_title = info_dict.get('title', None)
+        video.title = video_title
+        video.status = "processing"
+        video.status_message = "Beginning Download"
+        print('Video db ID = ' + str(video.id))
+        video.save()
+        video_processing = video
+        ydl.download([video.url])
+
 
 if __name__ == "__main__":
-
+    create_table()
+    q = Queue() 
+    t1 = Thread(target = processor, args =(q, ), daemon=True) 
+    t1.start()
     app.run(debug=True)
+    t1.join()

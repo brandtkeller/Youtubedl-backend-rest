@@ -8,19 +8,59 @@ You could then visit the web interface, submit youtube URL's to the form which w
 ## How I will be utilizing the Stack
 I enjoy the world of self-hosting. As such I currently run a Plex server for my home media needs. I plan to bind mount the media directory from this container to a sub-directory of the Plex server media so that I can have a collection of local media to watch without internet as a necessity. 
 
-## Docker
-Main Docker Container:
-* Written in python for embedding youtube-dl
-* FLASK API endpoints
+## Getting Started
 
-Requires a DB container pairing - PostgresDB
+These instructions will get the backend REST API server running for development purposes
 
-Saves Video's to a specific (or specified?) directory
-* This could then be mounted to a Plex sub-library folder
+### Prerequisites
+
+Necessary items to compile and run the server
+
+```
+python 3
+python3-pip
+ffmpeg
+libpq-dev
+```
+
+### Installing
+
+A step by step series of examples that tell you how to get a development env running
+
+Dependencies
+```
+pip3 install flask Flask-API youtube-dl psycopg2
+```
+
+Database parameters
+```
+nano database.ini 
+```
+
+Run
+
+```
+python3 server.py
+```
+
+The server will now be running on port 5000
+
+## Manual testing
+
+Testing the server via command line
+
+### REST test examples
+```
+curl -X POST localhost:5000/Videos -H 'Content-type:application/json' -d '{"type":"video", "attributes":{"url":"https://www.youtube.com/watch?v=y2DhodwenUE", "directory":"/"}}'
+```
+
+## Deployment
+
+Add additional notes about how to deploy this on a live system
 
 ## TODO
-* Change download file template name to title.mp4
-
+* Add runtime database parameters
+* Add path to file output
 * Add restart - startup procedures
 	* Initial database connection - Create table if not exist by default
 	* Queue thread should get all DB rows with "pending" and "processing" status and fill the Queue then begin processing
@@ -28,7 +68,8 @@ Saves Video's to a specific (or specified?) directory
 	* Maybe variable of the Video model
 	* Default location or sub-directory
 		* Check if sub-directory exists, if not create it
-
+* Containerize the application
+	* Database parameters via Dockerfile ENV variables
 ## Suedo Logic
 A user would have an interface to which upon opening would query all videos
 * Display table with all current videos and statuses
@@ -79,14 +120,3 @@ DELETE /VIDEO/{id} - Remove video from the DB
 
 ## Websocket
 Websocket could be added to add realtime updates to videos in the queue
-
-
-## Installation
-```
-pip3 install flask Flask-API youtube-dl psycopg2
-```
-
-## REST Example
-```
-curl -X POST localhost:5000/Videos -H 'Content-type:application/json' -d '{"type":"video", "attributes":{"url":"https://www.youtube.com/watch?v=y2DhodwenUE", "directory":"/"}}'
-```

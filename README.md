@@ -40,7 +40,7 @@ nano database.ini
 Run
 
 ```
-python3 server.py
+python3 server.py <db host> <db name> <db user> <db password>
 ```
 
 The server will now be running on port 5000
@@ -59,11 +59,13 @@ curl -X POST localhost:5000/Videos -H 'Content-type:application/json' -d '{"type
 Add additional notes about how to deploy this on a live system
 
 ## TODO
-* Add runtime database parameters
+* Need YDL error state checking
+* Add error checking to runtime database parameters
 * Add path to file output
 * Add restart - startup procedures
-	* Initial database connection - Create table if not exist by default
 	* Queue thread should get all DB rows with "pending" and "processing" status and fill the Queue then begin processing
+* Add logic for when a video fails to process
+	* PATCH /Videos/{ID} - Could change status to "refresh" and re-place in the queue - Need 
 * Add logic for media directory structure
 	* Maybe variable of the Video model
 	* Default location or sub-directory

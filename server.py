@@ -130,5 +130,5 @@ if __name__ == "__main__":
     q = Queue() 
     t1 = Thread(target = processor, args =(q, ), daemon=True) 
     t1.start()
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
     t1.join()

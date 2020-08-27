@@ -2,11 +2,11 @@ pipeline {
    agent none
  
    environment {
-         HOME_REPO = 'http://192.168.0.122:32600/brandtkeller/Youtubedl-backend-rest.git'
-         GITHUB_REPO = 'github.com/brandtkeller/Youtubedl-backend-rest.git'
+         HOME_REPO = 'http://192.168.0.122:32600/brandtkeller/video-cache-backend.git'
+         GITHUB_REPO = 'github.com/brandtkeller/video-cache-backend.git'
          REGISTRY = '192.168.0.128:5000/'
          IMAGE = ''
-         PROJECT = 'Youtubedl-backend-rest'
+         PROJECT = 'video-cache-backend'
     }
 
    stages {

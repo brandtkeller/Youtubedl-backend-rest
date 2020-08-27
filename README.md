@@ -1,4 +1,4 @@
-# YoutubeDL RESTFul Backend
+# Video Cache Backend
 This service is a pet project to be paired with a database (required) and a frontend web interface (Optional).
 While this has been accomplished before, I enjoy new challenges that solve problems or make life a little easier. 
 

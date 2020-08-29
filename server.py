@@ -1,5 +1,6 @@
 from flask import request, url_for
 from flask_api import FlaskAPI, status, exceptions
+from flask_cors import CORS, cross_origin
 import youtube_dl
 from database import create_table, get_all_rows, get_row_by_id, create_row, update_row, delete_row
 from video import Video
@@ -8,6 +9,10 @@ from threading import Thread
 import sys
 
 app = FlaskAPI(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
+# Global Variables
 processing = False
 video_processing = None
 
@@ -30,6 +35,7 @@ class MyLogger(object):
 
 
 @app.route("/Videos", methods=['GET', 'POST'])
+@cross_origin()
 def videos_list():
     if request.method == 'POST':
         # We are only expecting the URL and Directory
@@ -59,6 +65,7 @@ def videos_list():
 
 
 @app.route("/Videos/<int:key>", methods=['GET', 'DELETE'])
+@cross_origin()
 def videos_detail(key):
 
     if request.method == 'DELETE':
@@ -105,7 +112,11 @@ def download(video):
     'noplaylist' : True,
     'outtmpl': '/data/' + video.dir + '%(title)s.%(ext)s',
     'progress_hooks': [my_hook],
-    'logger': MyLogger()
+    'logger': MyLogger(),
+    'writethumbnail': True,
+    'postprocessors': [{
+        'key': 'FFmpegMetadata'
+    }]
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         info_dict = ydl.extract_info(video.url, download=False)

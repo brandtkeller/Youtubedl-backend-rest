@@ -17,7 +17,7 @@ These instructions will get the backend REST API server running for development 
 Necessary items to compile and run the server
 
 ```
-python 3
+python3-dev
 python3-pip
 ffmpeg
 libpq-dev
@@ -59,7 +59,6 @@ curl -X POST localhost:5000/Videos -H 'Content-type:application/json' -d '{"type
 Add additional notes about how to deploy this on a live system
 
 ## TODO
-* Need YDL error state checking
 * Add error checking to runtime database parameters
 * Add path to file output
 * Add restart - startup procedures
@@ -70,8 +69,6 @@ Add additional notes about how to deploy this on a live system
 	* Maybe variable of the Video model
 	* Default location or sub-directory
 		* Check if sub-directory exists, if not create it
-* Containerize the application
-	* Database parameters via Dockerfile ENV variables
 ## Suedo Logic
 A user would have an interface to which upon opening would query all videos
 * Display table with all current videos and statuses
@@ -122,3 +119,7 @@ DELETE /VIDEO/{id} - Remove video from the DB
 
 ## Websocket
 Websocket could be added to add realtime updates to videos in the queue
+
+## Plex Integration
+The main concept of the mounting structure is to mount this containers /data directory to a subdirectory of Plex's /media directory.
+The library should be created as a Movie library with personal media. This downloader should add metadata to the video's.

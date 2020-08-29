@@ -34,7 +34,7 @@ class MyLogger(object):
         processing = False
 
 
-@app.route("/Videos", methods=['GET', 'POST'])
+@app.route("/videos", methods=['GET', 'POST'])
 @cross_origin()
 def videos_list():
     if request.method == 'POST':
@@ -64,7 +64,7 @@ def videos_list():
         }
 
 
-@app.route("/Videos/<int:key>", methods=['GET', 'DELETE'])
+@app.route("/videos/<int:key>", methods=['GET', 'DELETE'])
 @cross_origin()
 def videos_detail(key):
 

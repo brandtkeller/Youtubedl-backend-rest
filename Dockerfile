@@ -9,7 +9,7 @@ ENV DB_PASSWORD postgres123
 user root
 
 RUN apt update && apt install -y libpq-dev ffmpeg python3-dev python3-pip && \
-    mkdir /data && pip3 install flask Flask-API youtube-dl psycopg2
+    mkdir /data && pip3 install flask Flask-API youtube-dl psycopg2 flask-cors
 
 RUN groupadd -g 999 appuser && \
     useradd -r -u 999 -g appuser appuser && \

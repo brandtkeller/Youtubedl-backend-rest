@@ -13,8 +13,8 @@ RUN apt update && ln -fs /usr/share/zoneinfo/America/Los_Angeles /etc/localtime 
 
 RUN mkdir /data && pip3 install flask Flask-API youtube-dl psycopg2 flask-cors
 
-RUN groupadd -g 999 appuser && \
-    useradd -r -u 999 -g appuser appuser && \
+RUN groupadd -g 1000 appuser && \
+    useradd -r -u 1000 -g appuser appuser && \
     chown appuser:appuser /data
 
 USER appuser

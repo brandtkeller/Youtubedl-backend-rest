@@ -22,9 +22,8 @@ class Video:
                 'url':self.url,
                 'title':self.title,
                 'status':self.status,
-                'statusMessage':self.status_message,
+                'status-message':self.status_message,
                 'directory':self.dir
             }
             
         }
-    # Could we add other database access methods here?

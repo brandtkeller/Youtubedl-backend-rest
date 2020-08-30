@@ -59,6 +59,7 @@ curl -X POST localhost:5000/Videos -H 'Content-type:application/json' -d '{"type
 Add additional notes about how to deploy this on a live system
 
 ## TODO
+* Create an 'addheader()' function for all responses for cors
 * Add error checking to runtime database parameters
 * Add path to file output
 * Add restart - startup procedures

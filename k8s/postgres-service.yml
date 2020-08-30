@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vcb-postgres
+  namespace: app-development
+  labels:
+    app: vcb-postgres
+spec:
+  type: NodePort
+  ports:
+  - name: dbport
+    nodePort: 31201
+    port: 5432
+    protocol: TCP
+    targetPort: 5432
+  selector:
+   app: vcb-postgres

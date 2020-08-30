@@ -5,12 +5,13 @@ pipeline {
          HOME_REPO = 'http://192.168.0.122:32600/brandtkeller/video-cache-backend.git'
          GITHUB_REPO = 'github.com/brandtkeller/video-cache-backend.git'
          REGISTRY = '192.168.0.128:5000/'
-         IMAGE = ''
+         IMAGE = '192.168.0.128:5000/video-cache-backend'
+         FROM_IMAGE = 'ubuntu:latest'
          PROJECT = 'video-cache-backend'
     }
 
    stages {
-      // On push to development branches, build and scan test image
+      // On push to development branches run tests
       stage('Development build & push') {
           agent { node { label 'docker' } }
           options { skipDefaultCheckout true }
@@ -28,11 +29,25 @@ pipeline {
           options { skipDefaultCheckout true }
           when { branch 'master' }
           steps {
-             sh 'rm -rf *'
-             sh 'git clone $HOME_REPO'
-             sh 'echo Building....'
+               sh 'rm -rf ${PROJECT} || echo "No Project folder present"'
+               sh 'git clone ${HOME_REPO}'
+               // Force the build command to pull a new latest tag image
+               sh 'docker image rm ${FROM_IMAGE} || echo "No image to remove"'
+               sh 'cd ${PROJECT} && docker build -t ${IMAGE}:0.0.${BUILD_NUMBER} .'
+               sh 'docker push ${IMAGE}:0.0.${BUILD_NUMBER}'
+               sh 'docker image rm ${IMAGE}:0.0.${BUILD_NUMBER}'
+               sh 'rm -rf ${PROJECT}'
           }
       }
+
+      stage('Rolling Deployment to Cluster') {
+            agent { node { label 'docker' } }
+            when { branch 'master' }
+            steps {
+                sh 'kubectl config set-context --current --namespace=app-development'
+                sh 'kubectl set image deployments/video-cache-backend video-cache-backend=${IMAGE}:0.0.${BUILD_NUMBER}'
+            }
+        }
 
       stage('Mirror to public Github') {
          agent any

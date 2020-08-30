@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vcb-postgres
+  namespace: app-development
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vcb-postgres
+  template:
+    metadata:
+      labels:
+        app: vcb-postgres
+    spec:
+      containers:
+        - name: vcb-postgres
+          image: postgres:10.4
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: vcb-postgres-config
+          volumeMounts:
+            - name: nfs-vcb-postgres
+              mountPath: /var/lib/postgresql/data
+          livenessProbe:
+            exec:
+              command:
+              - pg_isready
+              - -U
+              - postgres
+            initialDelaySeconds: 10
+            periodSeconds: 60
+      volumes:
+      - name: nfs-vcb-postgres
+        nfs: 
+          server: 192.168.0.128
+          path: /apps/app-dev/vcb-postgres

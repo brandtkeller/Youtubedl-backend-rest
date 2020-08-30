@@ -15,16 +15,23 @@ def mod_response(data, status_code):
     res.headers.add('Access-Control-Allow-Origin', '*')
     return res
 
+@app.route("/health", methods=['GET'])
+def service_health():
+    rows = get_all_rows()
+    if len(rows) != None:
+        return mod_response({'data':'Service is healthy'}, 200)
+    else:
+        return mod_response({'error':'Service is unhealthy'}, 500)
+
 @app.route("/videos", methods=['GET', 'POST'])
 def videos_list():
     if request.method == 'POST':
         # We are only expecting the URL and Directory
         data = request.json
-        print()
         vid_url = data["attributes"]["url"]
         vid_dir = data["attributes"]["directory"]
         if vid_url == None:
-            return "Error - No url specified", status.HTTP_400_BAD_REQUEST
+            return mod_response({'error':'URL not specified'}, 400)
         if vid_dir == None:
             vid_dir = ""
         
@@ -56,7 +63,6 @@ def videos_detail(key):
     # request.method == 'GET'
     row = get_row_by_id(key)
     if row == None:
-        print("There was no row returned for this ID")
         raise exceptions.NotFound()
     newVid = Video(row[0], row[1], row[2], row[3], row[4], row[5])
         
@@ -100,7 +106,6 @@ def my_hook(d):
         global video_processing
         global processing
 
-        print('video_processing id = ' + str(video_processing.id))
         video_processing.status = 'downloaded'
         video_processing.status_message = 'Download Compeleted'
         video_processing.save()
@@ -127,7 +132,6 @@ def download(video):
         video.title = video_title
         video.status = "processing"
         video.status_message = "Beginning Download"
-        print('Video db ID = ' + str(video.id))
         video.save()
         video_processing = video
         ydl.download([video.url])

@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-cache-backend
+  namespace: app-development
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: video-cache-backend
+  template:
+    metadata:
+      labels:
+        app: video-cache-backend
+    spec:
+      containers:
+        - name: video-cache-backend
+          image: 192.168.0.128:5000/video-cache-backend:0.0.1
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: vcb-config
+          volumeMounts:
+            - name: nfs-vcb
+              mountPath: /data
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 60
+      volumes:
+      - name: nfs-vcb
+        nfs: 
+          server: 192.168.0.128
+          path: /apps/plex/media/Youtube

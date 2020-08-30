@@ -53,6 +53,7 @@ Testing the server via command line
 ```
 curl -X POST localhost:5000/videos -H 'Content-type:application/json' -d '{"type":"video", "attributes":{"url":"https://youtu.be/7GFmAdRW_98", "directory":""}}'
 
+Test for my K8s deployment
 curl -X POST 192.168.0.122:31200/videos -H 'Content-type:application/json' -d '{"type":"video", "attributes":{"url":"https://youtu.be/7GFmAdRW_98", "directory":""}}'
 ```
 

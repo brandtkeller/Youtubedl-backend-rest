@@ -42,6 +42,7 @@ pipeline {
 
       stage('Rolling Deployment to Cluster') {
             agent { node { label 'docker' } }
+            options { skipDefaultCheckout true }
             when { branch 'master' }
             steps {
                 sh 'kubectl config set-context --current --namespace=app-development'

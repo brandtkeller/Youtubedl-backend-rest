@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: video-cache-backend
+  namespace: app-development
+  labels:
+    app: video-cache-backend
+spec:
+  type: NodePort
+  ports:
+  - name: frontend
+    nodePort: 31200
+    port: 5000
+    protocol: TCP
+    targetPort: 5000
+  selector:
+   app: video-cache-backend

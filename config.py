@@ -12,6 +12,4 @@ def config(filename='database.ini', section='postgresql'):
     db["user"] = sys.argv[3]
     db["password"] = sys.argv[4]
 
-    print('db = ' + str(db))
-
     return db

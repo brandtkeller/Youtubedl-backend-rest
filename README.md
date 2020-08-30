@@ -51,7 +51,7 @@ Testing the server via command line
 
 ### REST test examples
 ```
-curl -X POST localhost:5000/Videos -H 'Content-type:application/json' -d '{"type":"video", "attributes":{"url":"https://www.youtube.com/watch?v=y2DhodwenUE", "directory":"/"}}'
+curl -X POST localhost:5000/videos -H 'Content-type:application/json' -d '{"type":"video", "attributes":{"url":"https://www.youtube.com/watch?v=y2DhodwenUE", "directory":"/"}}'
 ```
 
 ## Deployment
@@ -59,7 +59,7 @@ curl -X POST localhost:5000/Videos -H 'Content-type:application/json' -d '{"type
 Add additional notes about how to deploy this on a live system
 
 ## TODO
-* Create an 'addheader()' function for all responses for cors
+  
 * Add error checking to runtime database parameters
 * Add path to file output
 * Add restart - startup procedures
@@ -70,6 +70,7 @@ Add additional notes about how to deploy this on a live system
 	* Maybe variable of the Video model
 	* Default location or sub-directory
 		* Check if sub-directory exists, if not create it
+* Add GET/PATCH /config for future saved table preferences
 ## Suedo Logic
 A user would have an interface to which upon opening would query all videos
 * Display table with all current videos and statuses

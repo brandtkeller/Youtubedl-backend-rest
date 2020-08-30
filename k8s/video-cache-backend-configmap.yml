@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vcb-config
+  namespace: app-development
+  labels:
+    app: video-cache-backend
+data:
+  DB_HOST: vcb-postgres
+  DB_NAME: postgresdb
+  DB_USER: postgresadmin
+  DB_PASSWORD: admin123

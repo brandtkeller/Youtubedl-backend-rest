@@ -12,7 +12,7 @@ app = FlaskAPI(__name__)
 # Custom response method for adding headers and data formatting
 def mod_response(data, status_code):
     res = make_response(jsonify(data), status_code)
-    res.headers.add('Access-Control-Allow-Origin', '*')
+    #res.headers.add('Access-Control-Allow-Origin', '*')
     return res
 
 @app.route("/health", methods=['GET'])
@@ -23,13 +23,13 @@ def service_health():
     else:
         return mod_response({'error':'Service is unhealthy'}, 500)
 
-@app.route("/videos", methods=['GET', 'POST'])
+@app.route("/videos", methods=['GET', 'POST', 'OPTIONS'])
 def videos_list():
     if request.method == 'POST':
         # We are only expecting the URL and Directory
         data = request.json
-        vid_url = data["attributes"]["url"]
-        vid_dir = data["attributes"]["directory"]
+        vid_url = data["data"]["attributes"]["url"]
+        vid_dir = data["data"]["attributes"]["directory"]
         if vid_url == None:
             return mod_response({'error':'URL not specified'}, 400)
         if vid_dir == None:
@@ -44,7 +44,6 @@ def videos_list():
 
         return mod_response({'data':newVid.toJson()}, 201)
 
-    # request.method == 'GET'
     else:
         data = {
             'data': [Video(row[0], row[1], row[2], row[3], row[4], row[5]).toJson() for row in get_all_rows()]
@@ -67,6 +66,13 @@ def videos_detail(key):
     newVid = Video(row[0], row[1], row[2], row[3], row[4], row[5])
         
     return mod_response({'data':newVid.toJson()}, 200)
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'POST')
+    return response
 
 # --------- Video Processor Logic ----------
 # Global Variables

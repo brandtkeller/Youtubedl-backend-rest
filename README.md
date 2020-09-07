@@ -62,17 +62,9 @@ curl -X POST 192.168.0.122:31200/videos -H 'Content-type:application/json' -d '{
 Add additional notes about how to deploy this on a live system
 
 ## TODO
-  
 * Add error checking to runtime database parameters
-* Add path to file output
-* Add restart - startup procedures
-	* Queue thread should get all DB rows with "pending" and "processing" status and fill the Queue then begin processing
 * Add logic for when a video fails to process
-	* PATCH /Videos/{ID} - Could change status to "refresh" and re-place in the queue - Need 
-* Add logic for media directory structure
-	* Maybe variable of the Video model
-	* Default location or sub-directory
-		* Check if sub-directory exists, if not create it
+	* PATCH /Videos/{ID} - Could change status to "refresh" and re-place in the queue
 * Add GET/PATCH /config for future saved table preferences
 ## Suedo Logic
 A user would have an interface to which upon opening would query all videos

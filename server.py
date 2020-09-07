@@ -12,7 +12,6 @@ app = FlaskAPI(__name__)
 # Custom response method for adding headers and data formatting
 def mod_response(data, status_code):
     res = make_response(jsonify(data), status_code)
-    #res.headers.add('Access-Control-Allow-Origin', '*')
     return res
 
 @app.route("/health", methods=['GET'])
@@ -89,42 +88,40 @@ class MyLogger(object):
     def error(self, msg):
         print(msg)
         global video_processing
-        global processing
-        video_processing.status = 'error'
+        video_processing.status = 'Error'
         video_processing.status_message = msg
         video_processing.save()
 
-        processing = False
-
 def processor(in_q):
-    global processing
+    startup(in_q)
+
     while True:
-        print("Processing = " + str(processing))
-        if processing == False:
-            vid = in_q.get()
-            download(vid)
-        else:
-            continue
+        vid = in_q.get()
+        print("New thread started")
+        t2 = Thread(target = download, args =(vid, ), daemon=True) 
+        t2.start()
+        t2.join()
+        print("Thread joined")
+
+def startup(q):
+    rows = get_all_rows()
+    for row in rows:
+        if row[3] == 'Pending' or row[3] == 'Processing':
+            q.put(Video(row[0], row[1], row[2], row[3], row[4], row[5]))
 
 def my_hook(d):
     if d['status'] == 'finished':
-        print('Done downloading, now converting ...')
         global video_processing
-        global processing
-
-        video_processing.status = 'downloaded'
+        print('Video ' + video_processing.title + ' has finished downloading.')
+        video_processing.status = 'Downloaded'
         video_processing.status_message = 'Download Compeleted'
         video_processing.save()
 
-        processing = False
-
 def download(video):
     global video_processing
-    global processing
-    processing = True
     ydl_opts = {
     'noplaylist' : True,
-    'outtmpl': '/data/' + video.dir + '%(title)s.%(ext)s',
+    'outtmpl': video.dir + '%(title)s.%(ext)s',
     'progress_hooks': [my_hook],
     'logger': MyLogger(),
     'writethumbnail': True,
@@ -136,7 +133,7 @@ def download(video):
         info_dict = ydl.extract_info(video.url, download=False)
         video_title = info_dict.get('title', None)
         video.title = video_title
-        video.status = "processing"
+        video.status = "Processing"
         video.status_message = "Beginning Download"
         video.save()
         video_processing = video
@@ -144,15 +141,21 @@ def download(video):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 5:
-        print('Incorrect runtime arguments passed')
-        print('Usage:')
-        print('  python3 server.py <db host> <db name> <db user> <db password>')
-        sys.exit(1)
+    try:
+        if len(sys.argv) < 5:
+            print('Incorrect runtime arguments passed')
+            print('Usage:')
+            print('  python3 server.py <db host> <db name> <db user> <db password>')
+            sys.exit(1)
 
-    create_table()
-    q = Queue() 
-    t1 = Thread(target = processor, args =(q, ), daemon=True) 
-    t1.start()
-    app.run(debug=True, host='0.0.0.0')
-    t1.join()
+        create_table()
+        q = Queue() 
+        t1 = Thread(target = processor, args =(q, ), daemon=True) 
+        t1.start()
+        app.run(debug=True, host='0.0.0.0')
+        
+    except KeyboardInterrupt:
+        t1.join()
+        print("Attempting to exit gracefully")
+        sys.exit(0)
+    

@@ -70,7 +70,7 @@ def videos_detail(key):
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'POST')
+    response.headers.add('Access-Control-Allow-Methods', 'POST, DELETE')
     return response
 
 # --------- Video Processor Logic ----------

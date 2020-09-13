@@ -6,6 +6,7 @@ from video import Video
 from queue import Queue 
 from threading import Thread
 import sys
+import os
 
 app = FlaskAPI(__name__)
 
@@ -35,8 +36,8 @@ def videos_list():
             vid_dir = ""
         
         # Create the Video row & object
-        rowId = create_row(vid_url, "", "Pending", "Placed in Queue", vid_dir)
-        newVid = Video(rowId, vid_url, "", "Pending", "Placed in Queue", vid_dir)
+        rowId = create_row(vid_url, "", "Pending", "Placed in Queue", vid_dir, "")
+        newVid = Video(rowId, vid_url, "", "Pending", "Placed in Queue", vid_dir, "")
 
         # Pass this video object to the Queue
         q.put(newVid)
@@ -45,7 +46,7 @@ def videos_list():
 
     else:
         data = {
-            'data': [Video(row[0], row[1], row[2], row[3], row[4], row[5]).toJson() for row in get_all_rows()]
+            'data': [Video(row[0], row[1], row[2], row[3], row[4], row[5], row[6]).toJson() for row in get_all_rows()]
         }
         
         return mod_response(data, 200)
@@ -55,6 +56,13 @@ def videos_list():
 def videos_detail(key):
 
     if request.method == 'DELETE':
+        row = get_row_by_id(key)
+        print(row[6])
+        if os.path.exists(row[6]):
+            print("The file does exist, deleting now")
+            os.remove("/data" + row[5] + row[6])
+        else:
+            print("The file does not exist")
         delete_row(key)
         return mod_response({'data':{}}, 204) 
 
@@ -62,7 +70,7 @@ def videos_detail(key):
     row = get_row_by_id(key)
     if row == None:
         raise exceptions.NotFound()
-    newVid = Video(row[0], row[1], row[2], row[3], row[4], row[5])
+    newVid = Video(row[0], row[1], row[2], row[3], row[4], row[5], row[6])
         
     return mod_response({'data':newVid.toJson()}, 200)
 
@@ -80,9 +88,22 @@ video_processing = None
 
 class MyLogger(object):
     def debug(self, msg):
+        sect = msg.split(" ")
+        if sect[0] == '[ffmpeg]':
+            sub_sect = msg.split('"')
+            if sub_sect[0] == '[ffmpeg] Merging formats into ':
+                filename = sub_sect[1]
+                print('Saving new filename to object: ' + filename)
+                global video_processing
+                video_processing.filename = filename
+                video_processing.save()
+
+                # Save converted filename to database when schema modified
+        
         pass
 
     def warning(self, msg):
+        print(msg)
         pass
 
     def error(self, msg):
@@ -107,7 +128,7 @@ def startup(q):
     rows = get_all_rows()
     for row in rows:
         if row[3] == 'Pending' or row[3] == 'Processing':
-            q.put(Video(row[0], row[1], row[2], row[3], row[4], row[5]))
+            q.put(Video(row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
 
 def my_hook(d):
     if d['status'] == 'finished':
@@ -121,16 +142,16 @@ def download(video):
     global video_processing
     ydl_opts = {
     'noplaylist' : True,
-    'outtmpl': video.dir + '%(title)s.%(ext)s',
+    'outtmpl': "/data" + video.dir + '%(title)s.%(ext)s',
     'progress_hooks': [my_hook],
     'logger': MyLogger(),
-    'writethumbnail': True,
     'postprocessors': [{
         'key': 'FFmpegMetadata'
     }]
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         info_dict = ydl.extract_info(video.url, download=False)
+        print(info_dict)
         video_title = info_dict.get('title', None)
         video.title = video_title
         video.status = "Processing"

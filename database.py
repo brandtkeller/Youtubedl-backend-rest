@@ -13,7 +13,8 @@ def create_table():
             title VARCHAR(255),
             status VARCHAR(255) NOT NULL,
             status_message VARCHAR(255) NOT NULL,
-            vid_dir varchar(255)
+            vid_dir varchar(255),
+            vid_filename varchar(255)
         )
         """)
     conn = None
@@ -70,11 +71,11 @@ def get_row_by_id(id):
             conn.close()
     return row
 
-def create_row(vid_url, title, status, status_message, vid_dir):
+def create_row(vid_url, title, status, status_message, vid_dir, vid_filename):
     # Insert row creation logic
     print('Creating row in database')
-    sql = """INSERT INTO videos(vid_url, title, status, status_message, vid_dir)
-             VALUES(%s, %s, %s, %s, %s) RETURNING id;"""
+    sql = """INSERT INTO videos(vid_url, title, status, status_message, vid_dir, vid_filename)
+             VALUES(%s, %s, %s, %s, %s, %s) RETURNING id;"""
     conn = None
     id = None
     try:
@@ -85,7 +86,7 @@ def create_row(vid_url, title, status, status_message, vid_dir):
         # create a new cursor
         cur = conn.cursor()
         # execute the INSERT statement
-        cur.execute(sql, (vid_url, title, status, status_message, vid_dir))
+        cur.execute(sql, (vid_url, title, status, status_message, vid_dir, vid_filename))
         # get the generated id back
         id = cur.fetchone()[0]
         # commit the changes to the database
@@ -102,10 +103,10 @@ def create_row(vid_url, title, status, status_message, vid_dir):
 
 # We can simply update all parameters for now until we want to improve performance
 # Maybe we pass a key/value pair for which parameters are being changed and loop
-def update_row(id, vid_url, title, status, status_message, vid_dir):
+def update_row(id, vid_url, title, status, status_message, vid_dir, vid_filename):
     print('Updating row in database')
     sql = """ UPDATE videos
-                SET vid_url = %s, title = %s, status = %s, status_message = %s, vid_dir = %s
+                SET vid_url = %s, title = %s, status = %s, status_message = %s, vid_dir = %s, vid_filename = %s
                 WHERE id = %s"""
     conn = None
     try:
@@ -116,7 +117,7 @@ def update_row(id, vid_url, title, status, status_message, vid_dir):
         # create a new cursor
         cur = conn.cursor()
         # execute the Update statement
-        cur.execute(sql, (vid_url, title, status, status_message, vid_dir, id))
+        cur.execute(sql, (vid_url, title, status, status_message, vid_dir, vid_filename, id))
         # commit the changes to the database
         conn.commit()
         # close communication with the database

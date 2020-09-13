@@ -62,6 +62,8 @@ curl -X POST 192.168.0.122:31200/videos -H 'Content-type:application/json' -d '{
 Add additional notes about how to deploy this on a live system
 
 ## TODO
+* Add converted filename to the database schema
+	* Use filename during DELETE to delete file from container/mount
 * Add error checking to runtime database parameters
 * Add logic for when a video fails to process
 	* PATCH /Videos/{ID} - Could change status to "refresh" and re-place in the queue
